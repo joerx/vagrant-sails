@@ -1,3 +1,5 @@
+export DEBIAN_FRONTEND=noninteractive
+
 echo -e "\e[0;36m[Upgrading system]\e[0m"
 apt-get -qq update
 apt-get -yqq upgrade
@@ -12,6 +14,11 @@ if [ ! -f /usr/bin/git ]; then
   apt-get -yqq install git-core
 fi
 
+if [ ! -f /usr/bin/g++ ]; then
+  echo -e "\e[0;36m[Installing build-essential]\e[0m"
+  apt-get -yqq install build-essential
+fi
+
 if [ ! -f /usr/bin/node ]; then
   echo -e "\e[0;36m[Installing node]\e[0m"
   curl -sL https://deb.nodesource.com/setup_0.12 | bash -
@@ -21,9 +28,21 @@ fi
 if [ ! -f /usr/bin/mysql ]; then
   echo -e "\e[0;36m[Installing mysql]\e[0m"
   echo 'MySQL superuser password is "root"'
-  debconf-set-selections <<< 'mysql-server mysql-server/root_password password root'
-  debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password root'
+
+  echo 'mysql-server mysql-server/root_password password root' | debconf-set-selections
+  echo 'mysql-server mysql-server/root_password_again password root' | debconf-set-selections
   apt-get -yqq install mysql-server
+fi
+
+if [ ! -f /etc/init.d/apache2 ]; then
+  echo -e "\e[0;36m[Installing apache2, php5, phpmyadmin]\e[0m"
+
+  echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true' | debconf-set-selections
+  echo 'phpmyadmin phpmyadmin/app-password-confirm password root' | debconf-set-selections
+  echo 'phpmyadmin phpmyadmin/mysql/admin-pass password root' | debconf-set-selections
+  echo 'phpmyadmin phpmyadmin/mysql/app-pass password root' | debconf-set-selections
+  echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections
+  apt-get -yqq install apache2 php5 php5-cli phpmyadmin
 fi
 
 if [ ! -f /usr/bin/grunt ]; then
