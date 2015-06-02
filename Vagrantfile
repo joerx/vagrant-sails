@@ -44,7 +44,7 @@ Vagrant.configure(2) do |config|
   
   config.vm.provider "virtualbox" do |vb|
     # vb.gui = true
-    vb.name = "smove"
+    vb.name = "sails"
     vb.memory = "1024"
   end
   #
